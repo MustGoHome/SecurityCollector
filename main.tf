@@ -9,23 +9,31 @@ resource "terraform_data" "name" {
   // connect wtih ssh
   connection {
     type     = "ssh"
-    host     = "192.168.10.10"
+    host     = var.target_host
     user     = "root"
     password = var.root_password
-    port     = 22
+    port     = var.ssh_port
   }
 
-  // remote exec
+  provisioner "file" {
+    source      = "scripts/account_mgmt.sh"
+    destination = "/tmp/account_mgmt.sh"
+  }
+
   provisioner "remote-exec" {
     inline = [
-      "echo '--- Execution Time: ${timestamp()} ---' > /tmp/execution_log.txt",
-      "uptime >> /tmp/execution_log.txt",
-      "echo 'Command executed successfully.'"
+      "chmod +x /tmp/account_mgmt.sh",
+      "sh /tmp/account_mgmt.sh > /tmp/${var.output_file}",
     ]
   }
 
-  // local exec
   provisioner "local-exec" {
-    command = "sshpass -p '${var.root_password}' scp -o StrictHostKeyChecking=no root@192.168.10.10:/tmp/result.txt ./"
+    command     = "sshpass -p '${var.root_password}' scp -o StrictHostKeyChecking=no root@${var.target_host}:/tmp/${var.output_file} ./"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "rm -f /tmp/account_mgmt.sh /tmp/${var.output_file}",
+    ]
   }
 }
