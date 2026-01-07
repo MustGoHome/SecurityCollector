@@ -1,32 +1,32 @@
 --------------------------------------------------
 [ U-01 ] root 계정 원격 접속 제한 (중요도: 상)
 --------------------------------------------------
-[ WARNING ] /etc/ssh/sshd_config에서 PermitRootLogin no 설정이 되어 있지 않습니다.
+[ WARNING ] /etc/ssh/sshd_config에서 PermitRootLogin no 설정이 누락되었습니다.
 --------------------------------------------------
 
 --------------------------------------------------
 [ U-02 ] 비밀번호 관리정책 설정 (중요도: 상)
 --------------------------------------------------
-[ WARNING ] /etc/login.defs에서 PASS_MAX_DAYS 값이 90 가 아닙니다.
-[ WARNING ] /etc/login.defs에서 PASS_MIN_DAYS 값이 1 가 아닙니다.
-[ WARNING ] /etc/security/pwquality.conf에서 minlen 값이 8 가 아닙니다.
-[ WARNING ] /etc/security/pwquality.conf에서 dcredit 값이 -1 가 아닙니다.
-[ WARNING ] /etc/security/pwquality.conf에서 ucredit 값이 -1 가 아닙니다.
-[ WARNING ] /etc/security/pwquality.conf에서 lcredit 값이 -1 가 아닙니다.
-[ WARNING ] /etc/security/pwquality.conf에서 ocredit 값이 -1 가 아닙니다.
-[ WARNING ] /etc/security/pwquality.conf에서 enforce_for_root 설정이 되어 있지 않습니다.
-[ WARNING ] /etc/pam.d/system-auth에서 일부 모듈이 누락되어 있습니다.
-[ WARNING ] /etc/security/pwhistory.conf에서 enforce_for_root 설정이 되어 있지 않습니다.
-[ WARNING ] /etc/security/pwhistory.conf에서 remember 값이 4 가 아닙니다.
-[ WARNING ] /etc/security/pwhistory.conf에서 file 값이 /etc/security/opasswd 가 아닙니다.
+[ WARNING ] /etc/login.defs에서 PASS_MAX_DAYS = 90 설정이 누락되었습니다.
+[ WARNING ] /etc/login.defs에서 PASS_MIN_DAYS = 1 설정이 누락되었습니다.
+[ WARNING ] /etc/security/pwquality.conf에서 minlen = 8 설정이 누락되었습니다.
+[ WARNING ] /etc/security/pwquality.conf에서 dcredit = -1 설정이 누락되었습니다.
+[ WARNING ] /etc/security/pwquality.conf에서 ucredit = -1 설정이 누락되었습니다.
+[ WARNING ] /etc/security/pwquality.conf에서 lcredit = -1 설정이 누락되었습니다.
+[ WARNING ] /etc/security/pwquality.conf에서 ocredit = -1 설정이 누락되었습니다.
+[ WARNING ] /etc/security/pwquality.conf에서 enforce_for_root 설정이 누락되었습니다.
+[ WARNING ] /etc/pam.d/system-auth에서 일부 모듈이 누락되었습니다.
+[ WARNING ] /etc/security/pwhistory.conf에서 enforce_for_root 설정이 누락되었습니다.
+[ WARNING ] /etc/security/pwhistory.conf에서 remember = 4 설정이 누락되었습니다.
+[ WARNING ] /etc/security/pwhistory.conf에서 file = /etc/security/opasswd 설정이 누락되었습니다.
 
 --------------------------------------------------
 [ U-03 ] 계정 잠금 임계값 설정 (중요도: 상)
 --------------------------------------------------
-[ WARNING ] with-faillock 모듈이 누락되어 있습니다.
-[ WARNING ] /etc/security/faillock.conf에서 silent 설정이 되어 있지 않습니다.
-[ WARNING ] /etc/security/faillock.conf에서 deny 값이 10 가 아닙니다.
-[ WARNING ] /etc/security/faillock.conf에서 unlock_time 값이 120 가 아닙니다.
+[ WARNING ] with-faillock 모듈이 누락되었습니다.
+[ WARNING ] /etc/security/faillock.conf에서 silent 설정이 누락되었습니다.
+[ WARNING ] /etc/security/faillock.conf에서 deny = 10 설정이 누락되었습니다.
+[ WARNING ] /etc/security/faillock.conf에서 unlock_time = 120 설정이 누락되었습니다.
 
 --------------------------------------------------
 [ U-04 ] 비밀번호 파일 보호 (중요도: 상)
@@ -41,7 +41,7 @@
 --------------------------------------------------
 [ U-06 ] 사용자 계정 su 기능 제한 (중요도: 상)
 --------------------------------------------------
-[ SAFE ] 점검 결과 : 안전
+[ WARNING ] /usr/bin/su 파일의 권한 및 소유자 설정이 누락되었습니다.
 
 --------------------------------------------------
 [ U-07 ] 불필요한 계정 제거 (중요도: 하)
@@ -66,16 +66,16 @@
 --------------------------------------------------
 [ U-11 ] 사용자 Shell 점검 (중요도: 하)
 --------------------------------------------------
-[ WARNING ] /etc/passwd에서 listen 계정의 쉘이 /sbin/nologin 가 아닙니다.
-[ WARNING ] /etc/passwd에서 nobody4 계정의 쉘이 /sbin/nologin 가 아닙니다.
-[ WARNING ] /etc/passwd에서 noaccess 계정의 쉘이 /sbin/nologin 가 아닙니다.
-[ WARNING ] /etc/passwd에서 diag 계정의 쉘이 /sbin/nologin 가 아닙니다.
-[ WARNING ] /etc/passwd에서 gopher 계정의 쉘이 /sbin/nologin 가 아닙니다.
+[ WARNING ] /etc/passwd에서 listen 계정의 쉘 필드가 /sbin/nologin이 아닙니다.
+[ WARNING ] /etc/passwd에서 nobody4 계정의 쉘 필드가 /sbin/nologin이 아닙니다.
+[ WARNING ] /etc/passwd에서 noaccess 계정의 쉘 필드가 /sbin/nologin이 아닙니다.
+[ WARNING ] /etc/passwd에서 diag 계정의 쉘 필드가 /sbin/nologin이 아닙니다.
+[ WARNING ] /etc/passwd에서 gopher 계정의 쉘 필드가 /sbin/nologin이 아닙니다.
 
 --------------------------------------------------
 [ U-12 ] 세션 종료 시간 설정 (중요도: 하)
 --------------------------------------------------
-[ WARNING ] /etc/profile에서 TMOUT 설정이 되어 있지 않습니다.
+[ WARNING ] /etc/profile에서 TMOUT 설정이 누락되었습니다.
 
 --------------------------------------------------
 [ U-13 ] 안전한 비밀번호 암호화 알고리즘 사용 (중요도: 중)
