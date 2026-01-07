@@ -98,5 +98,174 @@ echo "--------------------------------------------------"
 echo "[ U-03 ] 계정 잠금 임계값 설정 (중요도: 상)"
 echo "--------------------------------------------------"
 
+# error counter
+count=0
+
 # check authselect
 result=$(authselect current | grep -ic "with-faillock")
+if [ "$result" -eq 0 ]; then
+    ((count++))
+    echo "[ WARNING ] with-faillock 모듈이 누락되어 있습니다."
+fi
+
+# check /etc/security/faillock.conf
+result=$(grep -ic "^silent" /etc/security/faillock.conf)
+if [ "$result" -eq 0 ]; then
+    ((count++))
+    echo "[ WARNING ] /etc/security/faillock.conf에서 silent 설정이 되어 있지 않습니다."
+fi
+
+faillock_keys=("deny" "unlock_time")
+faillock_values=(10 120)
+
+for ((i=0; i<${#faillock_keys[@]}; i++)); do
+    result=$(grep -i "^${faillock_keys[i]}" /etc/security/faillock.conf | awk -F'=' '{print $2}' | xargs)
+
+    if [ -z "$result" ] || [ "$result" != ${faillock_values[i]} ]; then
+        ((count++))
+        echo "[ WARNING ] /etc/security/faillock.conf에서 ${faillock_keys[i]} 값이 ${faillock_values[i]} 가 아닙니다."
+    fi
+done
+
+if [ "$count" -eq 0 ]; then
+    echo "[ SAFE ] 점검 결과 : 안전"
+fi
+
+# [U-04] 비밀번호 파일 보호
+echo ""
+echo "--------------------------------------------------"
+echo "[ U-04 ] 비밀번호 파일 보호 (중요도: 상)"
+echo "--------------------------------------------------"
+
+# check /etc/passwd
+result=$(cat /etc/passwd | awk -F':' '{print $2}' | grep -vic "x")
+if [ "$result" -ne 0 ]; then
+    echo "[ WARNING ] /etc/passwd에서 패스워드 필드 암호화 설정이 되어 있지 않습니다."
+else
+    echo "[ SAFE ] 점검 결과 : 안전"
+fi
+
+
+# [U-05] root 이외의 UID가 '0' 금지
+echo ""
+echo "--------------------------------------------------"
+echo "[ U-05 ] root 이외의 UID가 '0' 금지 (중요도: 상)"
+echo "--------------------------------------------------"
+
+result=$(cat /etc/passwd | awk -F":" '{print $3}' | grep -ic "^0$")
+if [ "$result" -ne 1 ]; then
+    echo "[ WARNING ] /etc/passwd에서 루트 이외에 UID가 0인 계정이 존재합니다."
+else
+    echo "[ SAFE ] 점검 결과 : 안전"
+fi
+
+
+# [U-06] 사용자 계정 su 기능 제한
+echo ""
+echo "--------------------------------------------------"
+echo "[ U-06 ] 사용자 계정 su 기능 제한 (중요도: 상)"
+echo "--------------------------------------------------"
+
+perm=$(stat -c "%a" /usr/bin/su)
+group=$(stat -c "%G" /usr/bin/su)
+
+if [ "$perm" == "4750" ] && [ "$group" == "wheel" ]; then
+    echo "[ WARNING ] /usr/bin/su 파일의 권한이 잘못되었습니다."
+else
+    echo "[ SAFE ] 점검 결과 : 안전"
+fi
+
+
+# [U-07] 불필요한 계정 제거
+echo ""
+echo "--------------------------------------------------"
+echo "[ U-07 ] 불필요한 계정 제거 (중요도: 하)"
+echo "--------------------------------------------------"
+echo "[ SAFE ] 점검 결과 : 사용자 정의"
+
+
+# [U-08] 관리자 그룹에 최소한의 계정 포함
+echo ""
+echo "--------------------------------------------------"
+echo "[ U-08 ] 관리자 그룹에 최소한의 계정 포함 (중요도: 중)"
+echo "--------------------------------------------------"
+echo "[ SAFE ] 점검 결과 : 사용자 정의"
+
+
+# [U-09] 계정이 존재하지 않는 GID 금지
+echo ""
+echo "--------------------------------------------------"
+echo "[ U-09 ] 계정이 존재하지 않는 GID 금지 (중요도: 하)"
+echo "--------------------------------------------------"
+echo "[ SAFE ] 점검 결과 : 사용자 정의"
+
+
+# [U-10] 동일한 UID 금지
+echo ""
+echo "--------------------------------------------------"
+echo "[ U-10 ] 동일한 UID 금지 (중요도: 중)"
+echo "--------------------------------------------------"
+
+# check /etc/passwd
+result=$(cat /etc/passwd | awk -F":" '{print $3}' | sort | uniq -d)
+if [ -n "$result" ]; then
+    echo "[ WARNING ] /etc/passwd에서 계정의 UID 중복이 발견되었습니다."
+else
+    echo "[ SAFE ] 점검 결과 : 안전"
+fi
+
+# [U-11] 사용자 Shell 점검
+echo ""
+echo "--------------------------------------------------"
+echo "[ U-11 ] 사용자 Shell 점검 (중요도: 하)"
+echo "--------------------------------------------------"
+
+# error counter
+count=0
+
+# check /etc/passwd
+user_keys=("daemon" "bin" "sys" "adm" "listen" "nobody" "nobody4" "noaccess" "diag" "operator" "games" "gopher")
+for ((i=0; i<${#user_keys[@]}; i++)); do
+    result=$(grep -i "^${user_keys[i]}" /etc/passwd | awk -F':' '{print $7}' | xargs)
+
+    if [ -z "$result" ] || [ "$result" != "/sbin/nologin" ]; then
+        ((count++))
+        echo "[ WARNING ] /etc/passwd에서 ${user_keys[i]} 계정의 쉘이 /sbin/nologin 가 아닙니다."
+    fi
+done
+
+if [ "$count" -eq 0 ]; then
+    echo "[ SAFE ] 점검 결과 : 안전"
+fi
+
+
+# [U-12] 세션 종료 시간 설정
+echo ""
+echo "--------------------------------------------------"
+echo "[ U-12 ] 세션 종료 시간 설정 (중요도: 하)"
+echo "--------------------------------------------------"
+
+# check /etc/profile
+check_tmout=$(cat /etc/profile | grep -i "^TMOUT" | awk -F"=" '{print $2}')
+check_export=$(cat /etc/profile | grep -ic "^export TMOUT")
+if [ -z "$check_tmout" ] || [ "$check_tmout" != "600" ] && [ "$check_export" -ne 1 ]; then
+    echo "[ WARNING ] /etc/profile에서 TMOUT 설정이 되어 있지 않습니다."
+else
+    echo "[ SAFE ] 점검 결과 : 안전"
+fi
+
+
+# [U-13] 안전한 비밀번호 암호화 알고리즘 사용
+echo ""
+echo "--------------------------------------------------"
+echo "[ U-13 ] 안전한 비밀번호 암호화 알고리즘 사용 (중요도: 중)"
+echo "--------------------------------------------------"
+
+# check /etc/login.defs
+check_login=$(grep -i "^ENCRYPT_METHOD" /etc/login.defs | awk '{print $2}')
+check_pam=$(grep "^password" /etc/pam.d/system-auth | grep "pam_unix.so" | awk '{print $4}' | xargs)
+if [[ "$check_login" == "SHA512" || "$check_login" == "SHA256" || "$check_pam" == "sha512" || "$check_pam" == "sha256" ]]; then
+    echo "[ SAFE ] 점검 결과 : 안전"
+else
+    echo "[ WARNING ] /etc/login.defs에서 암호화 알고리즘 설정이 되어 있지 않습니다."
+fi
