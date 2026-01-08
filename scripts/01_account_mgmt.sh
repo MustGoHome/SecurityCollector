@@ -22,76 +22,91 @@ echo "--------------------------------------------------"
 echo "[ U-02 ] 비밀번호 관리정책 설정 (중요도: 상)"
 echo "--------------------------------------------------"
 
-# error counter
 counter=0
 
-# check /etc/login.defs(verify)
-login_key=("PASS_MAX_DAYS" "PASS_MIN_DAYS")
-login_value=("90" "1")
-
-for ((i=0; i<${#login_key[@]}; i++)); do
-    temp=$(grep -Ei "^\s*${login_key[i]}" /etc/login.defs | awk '{print $2}' | xargs)
-
-    if [[ -z ${temp} || ${temp} != ${login_value[i]} ]]; then
+# 1. /etc/login.defs 점검 (PASS_MAX_DAYS <= 90, PASS_MIN_DAYS >= 1)
+if [[ -f "/etc/login.defs" ]]; then
+    # PASS_MAX_DAYS 점검
+    max_days=$(grep -iE "^\s*PASS_MAX_DAYS" /etc/login.defs | awk '{print $2}' | xargs)
+    if [[ -z "${max_days}" ]]; then
         ((counter++))
-        echo "[ WARNING ] /etc/login.defs에서 ${login_key[i]} = ${login_value[i]} 설정이 누락되었습니다."
-    fi
-done
-
-# check /etc/security/pwquality.conf(verify)
-pwquality_key=("minlen" "dcredit" "ucredit" "lcredit" "ocredit")
-pwquality_value=("8" "-1" "-1" "-1" "-1")
-
-for ((i=0; i<${#pwquality_key[@]}; i++)); do
-    temp=$(grep -iE "^\s*${pwquality_key[i]}\s*=" /etc/security/pwquality.conf | awk -F'=' '{print $2}' | xargs)
-
-    if [[ -z ${temp} || ${temp} != ${pwquality_value[i]} ]]; then
+        echo "[ WARNING ] /etc/login.defs에 PASS_MAX_DAYS 설정이 누락되었습니다."
+    elif [[ "${max_days}" -gt 90 ]]; then
         ((counter++))
-        echo "[ WARNING ] /etc/security/pwquality.conf에서 ${pwquality_key[i]} = ${pwquality_value[i]} 설정이 누락되었습니다."
+        echo "[ WARNING ] PASS_MAX_DAYS가 90일보다 깁니다. (현재: ${max_days}일)"
     fi
-done
 
-temp=$(grep -iEc "^\s*enforce_for_root" /etc/security/pwquality.conf)
-
-if [[ ${temp} -eq 0 ]]; then
-    ((counter++))
-    echo "[ WARNING ] /etc/security/pwquality.conf에서 enforce_for_root 설정이 누락되었습니다."
+    # PASS_MIN_DAYS 점검
+    min_days=$(grep -iE "^\s*PASS_MIN_DAYS" /etc/login.defs | awk '{print $2}' | xargs)
+    if [[ -z "${min_days}" ]]; then
+        ((counter++))
+        echo "[ WARNING ] /etc/login.defs에 PASS_MIN_DAYS 설정이 누락되었습니다."
+    elif [[ "${min_days}" -lt 1 ]]; then
+        ((counter++))
+        echo "[ WARNING ] PASS_MIN_DAYS가 1일보다 짧습니다. (현재: ${min_days}일)"
+    fi
 fi
 
-# check /etc/pam.d/system-auth(verify)
-pam_pwquality_line=$(grep -iEn "^\s*password" /etc/pam.d/system-auth | grep -i "pam_pwquality.so" | awk -F':' '{print $1}' | xargs)
-pam_pwhistory_line=$(grep -iEn "^\s*password" /etc/pam.d/system-auth | grep -i "pam_pwhistory.so" | awk -F':' '{print $1}' | xargs)
-pam_unix_line=$(grep -iEn "^\s*password" /etc/pam.d/system-auth | grep -i "pam_unix.so" | awk -F':' '{print $1}' | xargs)
-
-if [[ -z ${pam_pwquality_line} || -z ${pam_pwhistory_line} || -z ${pam_unix_line} ]]; then
-    ((counter++))
-    echo "[ WARNING ] /etc/pam.d/system-auth에서 일부 모듈이 누락되었습니다."
-elif [[ ${pam_pwquality_line} -gt ${pam_unix_line} ]] || [[ ${pam_pwhistory_line} -gt ${pam_unix_line} ]]; then
-    ((counter++))
-    echo "[ WARNING ] /etc/pam.d/system-auth에서 모듈 순서가 잘못되었습니다."
-fi
-
-# check /etc/security/pwhistory.conf(verify)
-temp=$(grep -iEc "^\s*enforce_for_root" /etc/security/pwhistory.conf)
-
-if [ ${temp} -eq 0 ]; then
-    ((counter++))
-    echo "[ WARNING ] /etc/security/pwhistory.conf에서 enforce_for_root 설정이 누락되었습니다."
-fi
-
-pwhistory_key=("remember" "file")
-pwhistory_value=("4" "/etc/security/opasswd")
-
-for ((i=0; i<${#pwhistory_key[@]}; i++)); do
-    temp=$(grep -iE "^\s*${pwhistory_key[i]}\s*=" /etc/security/pwhistory.conf | awk -F'=' '{print $2}' | xargs)
-
-    if [[ -z ${temp} ]] || [[ ${temp} != ${pwhistory_value[i]} ]]; then
+# 2. /etc/security/pwquality.conf 점검 (복잡성 설정)
+if [[ -f "/etc/security/pwquality.conf" ]]; then
+    # minlen (최소 길이 8자 이상)
+    minlen=$(grep -iE "^\s*minlen\s*=" /etc/security/pwquality.conf | awk -F'=' '{print $2}' | xargs)
+    if [[ -z "${minlen}" || "${minlen}" -lt 8 ]]; then
         ((counter++))
-        echo "[ WARNING ] /etc/security/pwhistory.conf에서 ${pwhistory_key[i]} = ${pwhistory_value[i]} 설정이 누락되었습니다."
+        echo "[ WARNING ] pwquality.conf: minlen이 8자 미만입니다. (현재: ${minlen:-누락})"
     fi
-done
 
-if [ ${counter} -eq 0 ]; then
+    # 크레딧 설정 (dcredit, ucredit, lcredit, ocredit 모두 -1 이하 권장)
+    credits=("dcredit" "ucredit" "lcredit" "ocredit")
+    for credit in "${credits[@]}"; do
+        val=$(grep -iE "^\s*${credit}\s*=" /etc/security/pwquality.conf | awk -F'=' '{print $2}' | xargs)
+        if [[ -z "${val}" || "${val}" -gt -1 ]]; then
+            ((counter++))
+            echo "[ WARNING ] pwquality.conf: ${credit} 설정이 부적절합니다. (-1 이하 권장, 현재: ${val:-누락})"
+        fi
+    done
+
+    # enforce_for_root 존재 여부
+    if ! grep -qiE "^\s*enforce_for_root" /etc/security/pwquality.conf; then
+        ((counter++))
+        echo "[ WARNING ] pwquality.conf: enforce_for_root 설정이 누락되었습니다."
+    fi
+fi
+
+# 3. PAM 모듈 순서 점검 (/etc/pam.d/system-auth)
+# [논리] pwquality -> pwhistory -> unix 순서로 배치되어야 함
+if [[ -f "/etc/pam.d/system-auth" ]]; then
+    pam_pwq=$(grep -iEn "^\s*password" /etc/pam.d/system-auth | grep "pam_pwquality.so" | awk -F':' '{print $1}' | head -n 1)
+    pam_his=$(grep -iEn "^\s*password" /etc/pam.d/system-auth | grep "pam_pwhistory.so" | awk -F':' '{print $1}' | head -n 1)
+    pam_unix=$(grep -iEn "^\s*password" /etc/pam.d/system-auth | grep "pam_unix.so" | awk -F':' '{print $1}' | head -n 1)
+
+    if [[ -z "${pam_pwq}" || -z "${pam_his}" || -z "${pam_unix}" ]]; then
+        ((counter++))
+        echo "[ WARNING ] system-auth: 필수 PAM 모듈(pwquality, pwhistory, unix) 중 일부가 누락되었습니다."
+    elif [[ ${pam_pwq} -gt ${pam_unix} ]] || [[ ${pam_his} -gt ${pam_unix} ]]; then
+        ((counter++))
+        echo "[ WARNING ] system-auth: PAM 모듈 순서가 잘못되었습니다. (unix 모듈보다 앞에 위치해야 함)"
+    fi
+fi
+
+# 4. /etc/security/pwhistory.conf 점검 (최근 암호 기억)
+if [[ -f "/etc/security/pwhistory.conf" ]]; then
+    # remember (최근 4개 기억 권장)
+    rem=$(grep -iE "^\s*remember\s*=" /etc/security/pwhistory.conf | awk -F'=' '{print $2}' | xargs)
+    if [[ -z "${rem}" || "${rem}" -lt 4 ]]; then
+        ((counter++))
+        echo "[ WARNING ] pwhistory.conf: remember 값이 4 미만입니다. (현재: ${rem:-누락})"
+    fi
+
+    # enforce_for_root 점검
+    if ! grep -qiE "^\s*enforce_for_root" /etc/security/pwhistory.conf; then
+        ((counter++))
+        echo "[ WARNING ] pwhistory.conf: enforce_for_root 설정이 누락되었습니다."
+    fi
+fi
+
+# 최종 결과 출력
+if [[ ${counter} -eq 0 ]]; then
     echo "[ SAFE ] 점검 결과 : 안전"
 fi
 
@@ -261,24 +276,17 @@ echo "--------------------------------------------------"
 echo "[ U-12 ] 세션 종료 시간 설정 (중요도: 하)"
 echo "--------------------------------------------------"
 
-# check /etc/profile(verify)
-check_tmout=$(grep -iE '^\s*TMOUT\s*=' /etc/profile | awk -F'=' '{print $2}' | xargs)
+tmout_val=$(grep -iE '^\s*(export\s+)?TMOUT\s*=' /etc/profile | awk -F'=' '{print $2}' | xargs)
+export_check=$(grep -iE '^\s*export\s+TMOUT(\s*=|(\s*$))' /etc/profile)
 
-if [[ -z "$check_tmout" ]]; then
-    temp=$(grep -iE "^\s*export\s+TMOUT\s*=" /etc/profile | awk -F'=' '{print $2}' | xargs)
-
-    if [[ ${temp} == "600" ]]; then
-      echo "[ SAFE ] 점검 결과 : 안전"
+if [[ -n "$tmout_val" && -n "$export_check" ]]; then
+    if [[ "$tmout_val" -le 600 && "$tmout_val" -gt 0 ]]; then
+        echo "[ SAFE ] 점검 결과 : 안전 (현재 설정: ${tmout_val}초)"
     else
-      echo "[ WARNING ] /etc/profile에서 TMOUT 설정이 누락되었습니다."
+        echo "[ WARNING ] TMOUT 설정값이 600초를 초과합니다. (현재: ${tmout_val}초)"
     fi
 else
-    temp=$(grep -iE "^\s*export\s*TMOUT\s*$" /etc/profile)
-    if [[ ${check_tmout} == "600" && -n ${temp} ]]; then
-        echo "[ SAFE ] 점검 결과 : 안전"
-    else
-        echo "[ WARNING ] /etc/profile에서 TMOUT 설정이 누락되었습니다."
-    fi
+    echo "[ WARNING ] /etc/profile에서 TMOUT 설정 또는 export가 누락되었습니다."
 fi
 
 

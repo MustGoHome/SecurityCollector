@@ -1,6 +1,8 @@
 // terraform null resource
 resource "terraform_data" "name" {
 
+  for_each = toset(var.script_files)
+
   // always run
   triggers_replace = {
     always_run = timestamp()
@@ -16,24 +18,29 @@ resource "terraform_data" "name" {
   }
 
   provisioner "file" {
-    source      = "scripts/file_mgmt.sh"
-    destination = "/tmp/account_mgmt.sh"
+    source      = each.value
+    destination = "/tmp/${basename(each.value)}"
   }
 
   provisioner "remote-exec" {
     inline = [
-      "chmod +x /tmp/account_mgmt.sh",
-      "sh /tmp/account_mgmt.sh > /tmp/${var.output_file}",
+      "chmod +x /tmp/${basename(each.value)}",
+      "sh /tmp/${basename(each.value)} > /tmp/${basename(each.value)}.out",
     ]
   }
 
   provisioner "local-exec" {
-    command     = "sshpass -p '${var.root_password}' scp -o StrictHostKeyChecking=no root@${var.target_host}:/tmp/${var.output_file} ./"
+    command = <<EOT
+      mkdir -p ${var.output_dir}
+      sshpass -p '${var.root_password}' scp -o StrictHostKeyChecking=no \
+      root@${var.target_host}:/tmp/${basename(each.value)}.out \
+      ${var.output_dir}/${basename(each.value)}.log
+    EOT
   }
 
   provisioner "remote-exec" {
     inline = [
-      "rm -f /tmp/account_mgmt.sh /tmp/${var.output_file}",
+      "rm -f /tmp/${basename(each.value)} /tmp/${basename(each.value)}.out",
     ]
   }
 }

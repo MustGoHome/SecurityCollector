@@ -145,6 +145,7 @@
 [ WARNING ] /tmp/terraform_1720067852.sh에 World Writable 설정이 있습니다.
 [ WARNING ] /tmp/terraform_1782658580.sh에 World Writable 설정이 있습니다.
 [ WARNING ] /tmp/terraform_1297405971.sh에 World Writable 설정이 있습니다.
+[ WARNING ] /tmp/terraform_610976311.sh에 World Writable 설정이 있습니다.
 [ WARNING ] /tmp/terraform_1847244422.sh에 World Writable 설정이 있습니다.
 [ WARNING ] /tmp/terraform_725685505.sh에 World Writable 설정이 있습니다.
 [ WARNING ] /tmp/terraform_1626087504.sh에 World Writable 설정이 있습니다.
@@ -220,6 +221,51 @@
 [ WARNING ] /tmp/terraform_1608595430.sh에 World Writable 설정이 있습니다.
 [ WARNING ] /tmp/terraform_434782960.sh에 World Writable 설정이 있습니다.
 [ WARNING ] /tmp/terraform_1289232530.sh에 World Writable 설정이 있습니다.
+[ WARNING ] /tmp/terraform_925545545.sh에 World Writable 설정이 있습니다.
+[ WARNING ] /tmp/terraform_675717496.sh에 World Writable 설정이 있습니다.
+[ WARNING ] /tmp/terraform_1948772152.sh에 World Writable 설정이 있습니다.
+[ WARNING ] /tmp/terraform_1857621131.sh에 World Writable 설정이 있습니다.
+[ WARNING ] /tmp/terraform_1294396746.sh에 World Writable 설정이 있습니다.
+[ WARNING ] /tmp/terraform_950454176.sh에 World Writable 설정이 있습니다.
+[ WARNING ] /tmp/terraform_991473073.sh에 World Writable 설정이 있습니다.
+[ WARNING ] /tmp/terraform_419704555.sh에 World Writable 설정이 있습니다.
+[ WARNING ] /tmp/terraform_36409235.sh에 World Writable 설정이 있습니다.
+[ WARNING ] /tmp/terraform_1288787152.sh에 World Writable 설정이 있습니다.
+[ WARNING ] /tmp/terraform_859847885.sh에 World Writable 설정이 있습니다.
+[ WARNING ] /tmp/terraform_1985197665.sh에 World Writable 설정이 있습니다.
+[ WARNING ] /tmp/terraform_139867243.sh에 World Writable 설정이 있습니다.
+[ WARNING ] /tmp/terraform_1515419122.sh에 World Writable 설정이 있습니다.
+[ WARNING ] /tmp/terraform_1715423814.sh에 World Writable 설정이 있습니다.
+[ WARNING ] /tmp/terraform_220154212.sh에 World Writable 설정이 있습니다.
+[ WARNING ] /tmp/terraform_943877078.sh에 World Writable 설정이 있습니다.
+[ WARNING ] /tmp/terraform_730170519.sh에 World Writable 설정이 있습니다.
+[ WARNING ] /tmp/terraform_300326064.sh에 World Writable 설정이 있습니다.
+[ WARNING ] /tmp/terraform_645846093.sh에 World Writable 설정이 있습니다.
+[ WARNING ] /tmp/terraform_1954178564.sh에 World Writable 설정이 있습니다.
+[ WARNING ] /tmp/terraform_1491696106.sh에 World Writable 설정이 있습니다.
+[ WARNING ] /tmp/terraform_676278928.sh에 World Writable 설정이 있습니다.
+[ WARNING ] /tmp/terraform_1017821758.sh에 World Writable 설정이 있습니다.
+[ WARNING ] /tmp/terraform_778444330.sh에 World Writable 설정이 있습니다.
+[ WARNING ] /tmp/terraform_1651871604.sh에 World Writable 설정이 있습니다.
+[ WARNING ] /tmp/terraform_347010088.sh에 World Writable 설정이 있습니다.
+[ WARNING ] /tmp/terraform_1282108810.sh에 World Writable 설정이 있습니다.
+[ WARNING ] /tmp/terraform_794374047.sh에 World Writable 설정이 있습니다.
+[ WARNING ] /tmp/terraform_995965285.sh에 World Writable 설정이 있습니다.
+[ WARNING ] /tmp/terraform_1744878317.sh에 World Writable 설정이 있습니다.
+[ WARNING ] /tmp/terraform_1491915600.sh에 World Writable 설정이 있습니다.
+[ WARNING ] /tmp/terraform_2085425787.sh에 World Writable 설정이 있습니다.
+[ WARNING ] /tmp/terraform_1114690702.sh에 World Writable 설정이 있습니다.
+[ WARNING ] /tmp/terraform_1408799771.sh에 World Writable 설정이 있습니다.
+[ WARNING ] /tmp/terraform_1119716600.sh에 World Writable 설정이 있습니다.
+[ WARNING ] /tmp/terraform_1624438982.sh에 World Writable 설정이 있습니다.
+[ WARNING ] /tmp/terraform_1069616979.sh에 World Writable 설정이 있습니다.
+[ WARNING ] /tmp/terraform_410874658.sh에 World Writable 설정이 있습니다.
+[ WARNING ] /tmp/terraform_771493003.sh에 World Writable 설정이 있습니다.
+[ WARNING ] /tmp/terraform_1502584422.sh에 World Writable 설정이 있습니다.
+[ WARNING ] /tmp/terraform_1987647686.sh에 World Writable 설정이 있습니다.
+[ WARNING ] /tmp/terraform_1148609578.sh에 World Writable 설정이 있습니다.
+[ WARNING ] /tmp/terraform_1328524645.sh에 World Writable 설정이 있습니다.
+[ WARNING ] /tmp/terraform_99958916.sh에 World Writable 설정이 있습니다.
 
 --------------------------------------------------
 [ U-26 ] /dev 내 불필요한 Device 파일 점검 (중요도: 상)
@@ -229,3 +275,34 @@
 --------------------------------------------------
 [ U-27 ] $HOME/.rhosts, hosts.equiv 사용 금지 (중요도: 상)
 --------------------------------------------------
+[ SAFE ] 점검 결과 : 안전
+
+--------------------------------------------------
+[ U-28 ] 접속 IP 및 포트 접근 제한 설정 (중요도: 상)
+--------------------------------------------------
+[ SAFE ] 점검 결과 : 사용자 정의
+
+--------------------------------------------------
+[ U-29 ] hosts.lpd 파일 소유자 및 권한 설정 (중요도: 하)
+--------------------------------------------------
+[ SAFE ] 점검 결과 : 안전
+
+--------------------------------------------------
+[ U-30 ] UMASK 설정 관리 (중요도: 중)
+--------------------------------------------------
+[ SAFE ] 점검 결과 : 안전
+
+--------------------------------------------------
+[ U-31 ] 홈 디렉터리 소유자 및 권한 설정 (중요도: 중)
+--------------------------------------------------
+[ SAFE ] 점검 결과 : 안전
+
+--------------------------------------------------
+[ U-32 ] 홈 디렉터리로 지정된 디렉터리 존재 여부 관리 (중요도: 중)
+--------------------------------------------------
+[ SAFE ] 점검 결과 : 안전
+
+--------------------------------------------------
+[ U-33 ] 숨겨진 파일 및 디렉터리 검색 및 제거 (중요도: 하)
+--------------------------------------------------
+[ SAFE ] 점검 결과 : 사용자 정의

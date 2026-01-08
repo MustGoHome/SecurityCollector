@@ -22,3 +22,19 @@ variable "output_file" {
   type        = string
   default     = "report.txt"
 }
+
+variable "script_files" {
+  description = "This variable is an array of paths to script files."
+  type        = list(string)
+  default = [
+    "scripts/01_account_mgmt.sh",
+    "scripts/02_file_mgmt.sh",
+    "scripts/05_log_mgmt.sh"
+  ]
+}
+
+variable "output_dir" {
+  description = "This is the local path where the report file will be saved."
+  type        = string
+  default     = "./outputs"
+}
