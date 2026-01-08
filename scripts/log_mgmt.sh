@@ -83,9 +83,9 @@ echo "--------------------------------------------------"
 counter=0
 
 # check /var/log files owner and permission
-check_file=$(find /var/log -type f \( ! -user root -o -perm /022 \))
+mapfile -t check_file < <(find /var/log -type f \( ! -user root -o -perm /111 -o -perm /022 \))
 
-for logfile in ${check_file}; do
+for logfile in ${check_file[@]}; do
     ((counter++))
     echo "[ WARNING ] ${logfile}의 소유자 및 권한이 잘못되었습니다."
 done

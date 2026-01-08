@@ -57,10 +57,9 @@ echo "[ U-16 ] /etc/passwd 파일 소유자 및 권한 설정 (중요도: 상)"
 echo "--------------------------------------------------"
 
 # check /etc/passwd
-user=$(stat -c "%U" /etc/passwd)
-perm=$(stat -c "%a" /etc/passwd)
+check=$(find /etc/passwd \( ! -user root -o -perm /111 -o -perm /022 \))
 
-if [[ ${user} != root || ${perm} != 644 ]]; then
+if [[ -n ${check} ]]; then
     echo -e "[ WARNING ] /etc/passwd의 소유자 및 권한이 잘못되었습니다."
 else
     echo "[ SAFE ] 점검 결과 : 안전"
@@ -76,22 +75,47 @@ echo "--------------------------------------------------"
 # error counter
 counter=0
 
-# check /etc/rc.d/*/*
-check_rc=$(ls -al `readlink -f /etc/rc.d/*/* | sed "s/$/*/"` | awk '{print $NF}')
+# check /usr/lib/systemd/system
+mapfile -t check_systemd < <(find /usr/lib/systemd/system -type f -name "*.service" -perm /002)
 
-for ((i=0; i<${#check_rc[@]}; i++)); do
-    user=$(stat -c "%U" ${check_rc[i]})
-    perm=$(stat -c "%a" ${check_rc[i]})
-
-    other=$((perm % 10))
-
-    if [[ ${user} != root || ${other} -eq 2 || ${other} -eq 3 || ${other} -eq 6 || ${other} -eq 7 ]]; then
-        ((counter++))
-        echo -e "[ WARNING ] ${check_rc[i]}의 소유자 및 권한이 잘못되었습니다."
-    fi
+for ((i=0; i<${#check_systemd[@]}; i++)); do
+    ((counter++))
+    echo -e "[ WARNING ] ${check_systemd[i]}의 소유자 및 권한이 잘못되었습니다."
 done
 
 if [ ${counter} -eq 0 ]; then
+    echo "[ SAFE ] 점검 결과 : 안전"
+fi
+
+
+# [U-18] /etc/shadow 파일 소유자 및 권한 설정
+echo ""
+echo "--------------------------------------------------"
+echo "[ U-18 ] /etc/shadow 파일 소유자 및 권한 설정 (중요도: 상)"
+echo "--------------------------------------------------"
+
+# check /etc/shadow
+check_shadow=$(find /etc/shadow \( ! -user root -o -perm /377 \))
+
+if [[ -n ${check_shadow} ]]; then
+    echo -e "[ WARNING ] /etc/shadow의 소유자 및 권한이 잘못되었습니다."
+else
+    echo "[ SAFE ] 점검 결과 : 안전"
+fi
+
+
+# [U-19] /etc/shadow 파일 소유자 및 권한 설정
+echo ""
+echo "--------------------------------------------------"
+echo "[ U-19 ] /etc/hosts 파일 소유자 및 권한 설정 (중요도: 상)"
+echo "--------------------------------------------------"
+
+# check /etc/shadow
+check_hosts=$(find /etc/hosts \( ! -user root -o -perm /133 \))
+
+if [[ -n ${check_hosts} ]]; then
+    echo -e "[ WARNING ] /etc/hosts의 소유자 및 권한이 잘못되었습니다."
+else
     echo "[ SAFE ] 점검 결과 : 안전"
 fi
 
