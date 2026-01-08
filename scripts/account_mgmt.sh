@@ -239,11 +239,14 @@ counter=0
 user_key=("daemon" "bin" "sys" "adm" "listen" "nobody" "nobody4" "noaccess" "diag" "operator" "games" "gopher")
 
 for ((i=0; i<${#user_key[@]}; i++)); do
-    temp=$(grep -Ei "^\s*${user_key[i]}" /etc/passwd | awk -F':' '{print $7}' | xargs)
+    temp=$(grep -Ei "^\s*${user_key[i]}" /etc/passwd)
 
-    if [[ -z ${temp} || ${temp} != "/sbin/nologin" ]]; then
-        ((counter++))
-        echo "[ WARNING ] /etc/passwd에서 ${user_key[i]} 계정의 쉘 필드가 /sbin/nologin이 아닙니다."
+    if [[ -n ${temp} ]]; then
+        temp=$(echo ${temp} | awk -F':' '{print $7}' | xargs)
+        if [[ ${temp} != "/sbin/nologin" ]]; then
+            ((counter++))
+            echo "[ WARNING ] /etc/passwd에서 ${user_key[i]} 계정의 쉘 필드가 /sbin/nologin이 아닙니다."
+        fi
     fi
 done
 

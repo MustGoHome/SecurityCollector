@@ -16,7 +16,7 @@ resource "terraform_data" "name" {
   }
 
   provisioner "file" {
-    source      = "scripts/account_mgmt.sh"
+    source      = "scripts/log_mgmt.sh"
     destination = "/tmp/account_mgmt.sh"
   }
 
