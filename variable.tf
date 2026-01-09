@@ -29,6 +29,8 @@ variable "script_files" {
   default = [
     "scripts/01_account_mgmt.sh",
     "scripts/02_file_mgmt.sh",
+    "scripts/03_service_mgmt.sh",
+    "scripts/04_fetch_mgmt.sh",
     "scripts/05_log_mgmt.sh"
   ]
 }
